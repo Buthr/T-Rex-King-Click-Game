@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>T-Rex King 👑</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #ff0080 0%, #ff4da6 50%, #ff99cc 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '🦖';
+            position: fixed;
+            font-size: 200px;
+            opacity: 0.1;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 0;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
+            50% { transform: translate(-50%, -55%) rotate(5deg); }
+        }
+
+        .game-container {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            max-width: 90%;
+        }
+
+        .start-screen {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 60px 40px;
+            border-radius: 30px;
+            border: 5px solid #ff0080;
+            box-shadow: 0 0 60px rgba(255, 0, 128, 0.6);
+        }
+
+        .start-screen h1 {
+            font-size: 4em;
+            background: linear-gradient(135deg, #ff0080, #ff4da6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(255, 0, 128, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .crown {
+            font-size: 3em;
+            display: inline-block;
+            animation: spin 3s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .start-screen p {
+            font-size: 1.5em;
+            color: #ff0080;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+
+        #startBtn {
+            font-size: 2em;
+            padding: 20px 60px;
+            background: linear-gradient(135deg, #ff0080, #ff4da6);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 10px 30px rgba(255, 0, 128, 0.5);
+            transition: all 0.3s;
+            text-transform: uppercase;
+        }
+
+        #startBtn:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(255, 0, 128, 0.7);
+        }
+
+        #startBtn:active {
+            transform: translateY(-2px);
+        }
+
+        .game-screen {
+            display: none;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px 30px;
+            border-radius: 20px;
+            border: 3px solid #ff0080;
+            box-shadow: 0 5px 20px rgba(255, 0, 128, 0.3);
+        }
+
+        .score-display, .timer-display {
+            font-size: 2em;
+            color: #ff0080;
+            font-weight: bold;
+        }
+
+        .score-display span, .timer-display span {
+            color: #ff4da6;
+            font-size: 1.5em;
+        }
+
+        .timer-display.warning span {
+            color: #ff0000;
+            animation: blink 0.5s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .video-container {
+            position: relative;
+            max-width: 600px;
+            margin: 0 auto;
+            border-radius: 30px;
+            overflow: hidden;
+            box-shadow: 0 0 50px rgba(255, 0, 128, 0.6);
+            border: 5px solid #ff0080;
+            cursor: pointer;
+            transition: transform 0.1s;
+            background: #000;
+        }
+
+        .video-container:active {
+            transform: scale(0.98);
+        }
+
+        video {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: contain;
+        }
+
+        .face-animation {
+            position: fixed;
+            width: 120px;
+            height: 120px;
+            pointer-events: none;
+            z-index: 1000;
+            animation: springUp 1.5s ease-out forwards;
+            filter: drop-shadow(0 0 10px rgba(255, 0, 128, 0.8));
+        }
+
+        @keyframes springUp {
+            0% {
+                transform: translateY(0) scale(0) rotate(0deg);
+                opacity: 1;
+            }
+            40% {
+                transform: translateY(-200px) scale(1.4) rotate(360deg);
+            }
+            60% {
+                transform: translateY(-240px) scale(0.9) rotate(540deg);
+            }
+            100% {
+                transform: translateY(-300px) scale(1.2) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        .game-over-screen {
+            display: none;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 60px 40px;
+            border-radius: 30px;
+            border: 5px solid #ff0080;
+            box-shadow: 0 0 60px rgba(255, 0, 128, 0.6);
+        }
+
+        .game-over-screen h1 {
+            font-size: 4em;
+            background: linear-gradient(135deg, #ff0080, #ff4da6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+        }
+
+        .final-score {
+            font-size: 3em;
+            color: #ff0080;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+
+        .final-score span {
+            color: #ff4da6;
+            font-size: 1.5em;
+        }
+
+        #playAgainBtn {
+            font-size: 1.5em;
+            padding: 15px 50px;
+            background: linear-gradient(135deg, #ff0080, #ff4da6);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 10px 30px rgba(255, 0, 128, 0.5);
+            transition: all 0.3s;
+            text-transform: uppercase;
+            margin-top: 20px;
+        }
+
+        #playAgainBtn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(255, 0, 128, 0.7);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .click-effect {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border: 4px solid #ff0080;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: clickPulse 0.3s ease-out;
+            box-shadow: 0 0 20px rgba(255, 0, 128, 0.8);
+        }
+
+        @keyframes clickPulse {
+            0% {
+                transform: scale(0);
+                opacity: 1;
+                border-width: 4px;
+            }
+            100% {
+                transform: scale(2.5);
+                opacity: 0;
+                border-width: 1px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- Start Screen -->
+        <div class="start-screen" id="startScreen">
+            <h1><span class="crown">👑</span> T-REX KING <span class="crown">👑</span></h1>
+            <p>🦖 Click the face as fast as you can! 🦖</p>
+            <p style="font-size: 1.2em;">60 seconds of pure clicking madness!</p>
+            <button id="startBtn">🎮 CLICK TO START 🎮</button>
+        </div>
+
+        <!-- Game Screen -->
+        <div class="game-screen" id="gameScreen">
+            <div class="game-header">
+                <div class="score-display">
+                    👑 Score: <span id="scoreValue">0</span>
+                </div>
+                <div class="timer-display" id="timerDisplay">
+                    ⏱️ Time: <span id="timerValue">60</span>s
+                </div>
+            </div>
+            <div class="video-container" id="videoContainer">
+                <video id="gameVideo" loop muted playsinline></video>
+            </div>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div class="game-over-screen" id="gameOverScreen">
+            <h1>🎮 GAME OVER! 🎮</h1>
+            <div class="final-score">
+                👑 Final Score: <span id="finalScore">0</span> 👑
+            </div>
+            <p style="font-size: 1.5em; color: #ff0080; margin: 20px 0;">You are the T-Rex King!</p>
+            <button id="playAgainBtn">🔄 PLAY AGAIN 🔄</button>
+        </div>
+    </div>
+
+    <script>
+        // Embedded media - Base64 encoded
+        const MAIN_VIDEO = 'main-video.mp4';
+        const WORD_AUDIO = 'word-clean.mp4'; // Ultra-clean trimmed audio with silence removed
+        const GAME_OVER_AUDIO = 'game-over-sound.mp4'; // "ควย!" sound when timer ends
+        const FACE1_IMAGE = 'face1.jpg';
+        const FACE2_IMAGE = 'face2.jpg';
+
+        // Game state
+        let score = 0;
+        let timeLeft = 60;
+        let gameActive = false;
+        let timerInterval;
+        let clicksSinceSwitch = 0;
+        let currentFace = 1;
+
+        // Elements
+        const startScreen = document.getElementById('startScreen');
+        const gameScreen = document.getElementById('gameScreen');
+        const gameOverScreen = document.getElementById('gameOverScreen');
+        const startBtn = document.getElementById('startBtn');
+        const playAgainBtn = document.getElementById('playAgainBtn');
+        const scoreValue = document.getElementById('scoreValue');
+        const timerValue = document.getElementById('timerValue');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const finalScore = document.getElementById('finalScore');
+        const videoContainer = document.getElementById('videoContainer');
+        const gameVideo = document.getElementById('gameVideo');
+
+        // Load video
+        gameVideo.src = MAIN_VIDEO;
+
+        // Audio element for sound effects - using trimmed word clip for responsiveness
+        // AUDIO POOL SYSTEM - Creates multiple pre-loaded audio instances for INSTANT playback
+        const audioPool = [];
+        const poolSize = 10; // 10 audio instances ready to play simultaneously
+        let currentAudioIndex = 0;
+
+        // Initialize audio pool
+        function initAudioPool() {
+            for (let i = 0; i < poolSize; i++) {
+                const audio = new Audio();
+                audio.src = WORD_AUDIO;
+                audio.volume = 0.8;
+                audio.preload = 'auto';
+                audio.load(); // Preload immediately
+                audioPool.push(audio);
+            }
+        }
+
+        // Call this immediately
+        initAudioPool();
+
+        // Start game
+        startBtn.addEventListener('click', startGame);
+        playAgainBtn.addEventListener('click', resetGame);
+
+        // Unlock audio on first user interaction (required for mobile browsers)
+        startBtn.addEventListener('click', () => {
+            audioPool.forEach(audio => {
+                audio.play().then(() => {
+                    audio.pause();
+                    audio.currentTime = 0;
+                }).catch(() => {});
+            });
+        }, { once: true });
+
+        function startGame() {
+            startScreen.classList.add('hidden');
+            gameScreen.style.display = 'block';
+            gameActive = true;
+            score = 0;
+            timeLeft = 60;
+            clicksSinceSwitch = 0;
+            currentFace = 1;
+            
+            gameVideo.load();
+            gameVideo.play();
+            
+            updateScore();
+            startTimer();
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerValue.textContent = timeLeft;
+                
+                if (timeLeft <= 10) {
+                    timerDisplay.classList.add('warning');
+                }
+                
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        function endGame() {
+            gameActive = false;
+            clearInterval(timerInterval);
+            gameScreen.style.display = 'none';
+            gameOverScreen.style.display = 'block';
+            finalScore.textContent = score;
+            gameVideo.pause();
+            
+            // Play "ควย!" sound when time is up
+            const gameOverSound = new Audio(GAME_OVER_AUDIO);
+            gameOverSound.volume = 0.8;
+            gameOverSound.play().catch(() => {});
+        }
+
+        function resetGame() {
+            gameOverScreen.classList.add('hidden');
+            startScreen.classList.remove('hidden');
+            timerDisplay.classList.remove('warning');
+            score = 0;
+            timeLeft = 60;
+            clicksSinceSwitch = 0;
+            currentFace = 1;
+            updateScore();
+            timerValue.textContent = timeLeft;
+        }
+
+        function updateScore() {
+            scoreValue.textContent = score;
+        }
+
+        function playSound() {
+            // Get next available audio from pool (round-robin)
+            const audio = audioPool[currentAudioIndex];
+            
+            // Play instantly - no delay, no waiting!
+            audio.currentTime = 0;
+            audio.play().catch(() => {});
+            
+            // Move to next audio in pool for next click
+            currentAudioIndex = (currentAudioIndex + 1) % poolSize;
+        }
+
+        function createFaceAnimation(x, y) {
+            const faceImg = document.createElement('img');
+            faceImg.className = 'face-animation';
+            faceImg.src = currentFace === 1 ? FACE1_IMAGE : FACE2_IMAGE;
+            faceImg.style.left = (x - 60) + 'px';
+            faceImg.style.top = (y - 60) + 'px';
+            
+            document.body.appendChild(faceImg);
+            
+            setTimeout(() => {
+                faceImg.remove();
+            }, 1500);
+        }
+
+        function createClickEffect(x, y) {
+            const effect = document.createElement('div');
+            effect.className = 'click-effect';
+            effect.style.left = (x - 25) + 'px';
+            effect.style.top = (y - 25) + 'px';
+            document.body.appendChild(effect);
+            
+            setTimeout(() => {
+                effect.remove();
+            }, 300);
+        }
+
+        // Handle video click
+        videoContainer.addEventListener('click', (e) => {
+            if (!gameActive) return;
+            
+            score++;
+            clicksSinceSwitch++;
+            updateScore();
+            
+            playSound();
+            createFaceAnimation(e.clientX, e.clientY);
+            createClickEffect(e.clientX, e.clientY);
+            
+            // Switch face every 10 clicks
+            if (clicksSinceSwitch >= 10) {
+                currentFace = currentFace === 1 ? 2 : 1;
+                clicksSinceSwitch = 0;
+            }
+        });
+
+        videoContainer.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+        });
+    </script>
+</body>
+</html>
